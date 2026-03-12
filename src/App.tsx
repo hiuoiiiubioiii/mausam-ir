@@ -10,6 +10,7 @@ import OptimizationPasses from './components/OptimizationPasses';
 import BareMetalMetrics from './components/BareMetalMetrics';
 import MausamSimulation from './components/MausamSimulation';
 import HimalayanFloodMap from './components/HimalayanFloodMap';
+import FloodCausesAnalysis from './components/FloodCausesAnalysis';
 
 // ─── Animated Section Wrapper ─────────────────────────────────────────────────
 function Section({ id, tag, title, desc, children, glowClass = '', accentColor = '#3cff8c' }: {
@@ -201,6 +202,22 @@ function App() {
                         Risk zones: Kedarnath · Chamoli · Teesta · Brahmaputra · Kosi · Jhelum and 8 more.
                     </p>
                     <HimalayanFloodMap />
+                </div>
+            </section>
+
+            <hr className="section-divider" />
+
+            {/* ─── Causes, Solutions & Gov Data ─────────────────────────────── */}
+            <section id="causes" className="site-section" style={{ minHeight: 'auto', paddingBottom: '3rem' }}>
+                <div className="section-inner">
+                    <div className="section-tag" style={{ color: '#a855f7' }}>GenAI Causal Analysis · Gov. Forecasting APIs</div>
+                    <h2 className="section-title">Causes, Solutions & Data Sources</h2>
+                    <p className="section-desc">
+                        A GenAI-classified breakdown of every major flash flood driver across the Himalayan arc —
+                        with AI detection strategy, government forecast API integration, and structured mitigation roadmap
+                        sourced from IMD, MOSDAC, CWC, ISRO Bhuvan, NDMA, and NASA FIRMS.
+                    </p>
+                    <FloodCausesAnalysis />
                 </div>
             </section>
 
