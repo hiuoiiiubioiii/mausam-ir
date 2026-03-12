@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Activity, Cpu, Database, Network, TerminalSquare, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -22,8 +22,39 @@ const STAGES = [
 function App() {
     const [activeStage, setActiveStage] = useState(0);
 
+    // Sheryians Custom Cursor State
+    const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
+    const [isHovering, setIsHovering] = useState(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePos({ x: e.clientX, y: e.clientY });
+        };
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('button, .stage-item, a, .glow-green, .glow-blue')) {
+                setIsHovering(true);
+            } else {
+                setIsHovering(false);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseover', handleMouseOver);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseover', handleMouseOver);
+        };
+    }, []);
+
     return (
         <div className="app-container">
+            {/* Sheryians Custom Dynamic Cursor */}
+            <motion.div
+                className={`custom-cursor ${isHovering ? 'hovering' : ''}`}
+                animate={{ left: mousePos.x, top: mousePos.y }}
+                transition={{ type: 'tween', ease: 'backOut', duration: 0.15 }}
+            />
             {/* 3D Canvas Background Layer */}
             <div className="canvas-container">
                 <HighFidelitySimulation />
@@ -32,10 +63,12 @@ function App() {
             {/* UI Overlay Layer */}
             <header>
                 <div className="brand">
-                    <h1>MAUSAM<span className="glow-green">-GEN AI</span></h1>
+                    <div className="reveal-text-container">
+                        <h1 className="reveal-text">MAUSAM<span className="glow-green">-GEN AI</span></h1>
+                    </div>
                     <div className="subtitle">
-                        Gen-AI Coursework Project <br />
-                        Physics-Informed Edge LLM Pipeline
+                        <div className="reveal-text-container"><span className="reveal-text" style={{ animationDelay: '0.1s' }}>Gen-AI Coursework Project</span></div> <br />
+                        <div className="reveal-text-container"><span className="reveal-text" style={{ animationDelay: '0.2s' }}>Physics-Informed Edge LLM</span></div>
                     </div>
                 </div>
                 <div className="status-indicator">
