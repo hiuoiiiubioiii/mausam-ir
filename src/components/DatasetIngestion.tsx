@@ -8,10 +8,13 @@ const DatasetIngestion: React.FC = () => {
     const [isComplete, setIsComplete] = useState(false);
 
     useEffect(() => {
-        if (progress >= 100) {
-            setIsComplete(true);
-            setLogs((prev) => [...prev, '[SYSTEM] ISRO / NASA Climate Datasets successfully mapped to memory.']);
-            return;
+        if (progress >= 100 && !isComplete) {
+            // Delay completion state slightly to avoid synchronous cascade
+            const timer = setTimeout(() => {
+                setIsComplete(true);
+                setLogs((prev) => [...prev, '[SYSTEM] ISRO / NASA Climate Datasets successfully mapped to memory.']);
+            }, 50);
+            return () => clearTimeout(timer);
         }
 
         const timer = setTimeout(() => {

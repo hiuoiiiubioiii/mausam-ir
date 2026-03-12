@@ -1,8 +1,6 @@
-// @ts-nocheck
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, Float, Sparkles, Instances, Instance } from '@react-three/drei';
-import { EffectComposer, Bloom, DepthOfField, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
 // Procedural Himalayan Terrain Generation (Mocking Terrain Ingestion)
@@ -63,7 +61,7 @@ const CloudburstParticleSystem = () => {
     const group = useRef<THREE.Group>(null);
 
     // Create thousands of particles simulating rain/data points
-    const particles = useMemo(() => {
+    const [particles] = useState(() => {
         return Array.from({ length: 3000 }, () => ({
             position: [
                 (Math.random() - 0.5) * 20,
@@ -72,12 +70,12 @@ const CloudburstParticleSystem = () => {
             ] as [number, number, number],
             speed: Math.random() * 0.2 + 0.1
         }));
-    }, []);
+    });
 
     useFrame(() => {
         if (group.current) {
             // Simulate gravity and fluid interaction
-            group.current.children.forEach((mesh: any, i) => {
+            group.current.children.forEach((mesh: THREE.Object3D, i: number) => {
                 mesh.position.y -= particles[i].speed;
                 if (mesh.position.y < -2) {
                     mesh.position.y = 20; // reset to top
@@ -91,7 +89,8 @@ const CloudburstParticleSystem = () => {
             <sphereGeometry args={[0.03, 8, 8]} />
             <meshStandardMaterial color="#00d2ff" emissive="#00d2ff" emissiveIntensity={2} toneMapped={false} />
             <group ref={group}>
-                {particles.map((data, i) => (
+                {/* 3D Scatter Plot of Simulation Data */}
+                {particles.map((data: { position: [number, number, number], speed: number }, i: number) => (
                     <Instance key={i} position={data.position} />
                 ))}
             </group>
@@ -135,24 +134,9 @@ const HighFidelitySimulation: React.FC = () => {
                     autoRotateSpeed={0.5}
                 />
 
-                {/* Advanced Post-Processing Pipeline */}
-                <EffectComposer disableNormalPass>
-                    {/* Intense Bloom to make the neon lines / APIs glow like magic */}
-                    <Bloom
-                        luminanceThreshold={0.2}
-                        mipmapBlur
-                        intensity={1.5}
-                    />
-                    {/* Cinematic Depth of Field */}
-                    <DepthOfField
-                        focusDistance={0.02}
-                        focalLength={0.05}
-                        bokehScale={4}
-                        height={480}
-                    />
-                    <Noise opacity={0.03} />
-                    <Vignette eskil={false} offset={0.1} darkness={1.1} />
-                </EffectComposer>
+                {/* Base Lighting for 3D visibility */}
+                <ambientLight intensity={0.5} />
+                <directionalLight position={[10, 10, 5]} intensity={1.5} color="#00ffcc" />
 
                 {/* Cinematic Environment Reflections */}
                 <Environment preset="night" />

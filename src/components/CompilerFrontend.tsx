@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Network, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const CompilerFrontend: React.FC = () => {
     const [nodes, setNodes] = useState<number>(0);
-    const [steps, setSteps] = useState<any[]>([]); // To store the completed reasoning steps
+    const [steps, setSteps] = useState<{ id?: string; name: string; status?: string; type: string }[]>([]); // To store the completed reasoning steps
 
-    const REASONING_STAGES = [
+    const REASONING_STAGES = useMemo(() => [
         { name: '[AST PARSING] Identifying nn.Module constraints', type: 'parse' },
         { name: '[CHAIN-OF-THOUGHT] Tracing Navier-Stokes fluid dependencies', type: 'transform' },
         { name: '[CODEGEN] Building intermediate LLVM topology', type: 'parse' },
         { name: '[RAG FUSION] Injecting ISRO Vector DB bounds', type: 'transform' },
         { name: '[OUTPUT] MLIR Dialect Generation Complete', type: 'success' },
-    ];
+    ], []);
 
     useEffect(() => {
         // Simulate parsing the AST
