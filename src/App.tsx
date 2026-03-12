@@ -11,6 +11,7 @@ import BareMetalMetrics from './components/BareMetalMetrics';
 import MausamSimulation from './components/MausamSimulation';
 import HimalayanFloodMap from './components/HimalayanFloodMap';
 import FloodCausesAnalysis from './components/FloodCausesAnalysis';
+import GlobalDisasterFeed from './components/GlobalDisasterFeed';
 
 // ─── Animated Section Wrapper ─────────────────────────────────────────────────
 function Section({ id, tag, title, desc, children, glowClass = '', accentColor = '#3cff8c' }: {
@@ -89,12 +90,12 @@ function App() {
     }, []);
 
     const NAV = [
-        { id: 'map', label: 'Flood Map' },
+        { id: 'map', label: 'Himalayas' },
+        { id: 'causes', label: 'Analysis' },
+        { id: 'global', label: '🌐 Global' },
         { id: 'demo', label: 'Simulation' },
         { id: 'rag', label: 'RAG' },
         { id: 'swarm', label: 'Agents' },
-        { id: 'simulation', label: 'PINN' },
-        { id: 'optimization', label: 'Quantize' },
         { id: 'metrics', label: 'Edge' },
     ];
 
@@ -218,6 +219,22 @@ function App() {
                         sourced from IMD, MOSDAC, CWC, ISRO Bhuvan, NDMA, and NASA FIRMS.
                     </p>
                     <FloodCausesAnalysis />
+                </div>
+            </section>
+
+            <hr className="section-divider" />
+
+            {/* ─── Global Disaster Feed ────────────────────────────────────────── */}
+            <section id="global" className="site-section" style={{ minHeight: 'auto', paddingBottom: '3rem' }}>
+                <div className="section-inner">
+                    <div className="section-tag" style={{ color: '#22c55e' }}>World-Level · Open-Meteo API · Live Streaming</div>
+                    <h2 className="section-title">Global Flood Danger Zones</h2>
+                    <p className="section-desc">
+                        23 world-level flood risk zones streamed live from the Open-Meteo weather API — real precipitation,
+                        temperature, and wind data updated every 2 minutes. Switch between 4 visualization modes:
+                        Radar chart · Risk gauge · Precipitation sparkline · Risk heatbar.
+                    </p>
+                    <GlobalDisasterFeed />
                 </div>
             </section>
 
