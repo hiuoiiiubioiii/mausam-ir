@@ -11,9 +11,9 @@ import OptimizationPasses from './components/OptimizationPasses';
 import BareMetalMetrics from './components/BareMetalMetrics';
 
 const STAGES = [
-    { id: 'ingestion', label: 'ERA5/IMD Dataset Ingestion', icon: Database },
+    { id: 'ingestion', label: 'ISRO/NASA Dataset Ingestion', icon: Database },
     { id: 'simulation', label: 'OpenUSD 3D Simulation', icon: Activity },
-    { id: 'genai', label: 'Meta Llama x Modulus Architect', icon: Zap },
+    { id: 'genai', label: 'Autonomous Agent Swarm', icon: Zap },
     { id: 'frontend', label: 'LLVM Graph Frontend', icon: Network },
     { id: 'passes', label: 'C++ Custom Passes', icon: TerminalSquare },
     { id: 'baremetal', label: 'IoT Bare Metal Target', icon: Cpu },
@@ -40,8 +40,11 @@ function App() {
                 </div>
                 <div className="status-indicator">
                     <span className="glow-blue" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
-                        SYSTEM: ONLINE | NVIDIA EARTH-2 CONNECTED
+                        SYSTEM: ONLINE | SECURE CONNECTION ESTABLISHED
                     </span>
+                </div>
+                <div className="author-credit" style={{ position: 'absolute', top: '1rem', right: '2rem', fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    BUILT BY <span style={{ color: 'var(--neon-green)', fontWeight: 'bold' }}>HITESH MEHER</span>
                 </div>
             </header>
 
@@ -100,7 +103,7 @@ function App() {
                             {activeStage === 1 && <div className="component-container" style={{ background: 'rgba(0,0,0,0.4)', boxShadow: 'none', border: 'none' }}>
                                 {/* Simulation runs mostly in the background, but we can put overlay controls here */}
                                 <div style={{ padding: '2rem', textAlign: 'center' }}>
-                                    <h2 className="glow-blue">NVIDIA OMNIVERSE / OpenUSD Visualizer Active</h2>
+                                    <h2 className="glow-blue">Mausam-IR High-Fidelity 3D Visualizer Active (Powered by NVIDIA Omniverse)</h2>
                                     <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>
                                         Processing complex fluid dynamics and topographical meshes via Real-Time WebGL.
                                     </p>

@@ -5,7 +5,7 @@ import { OrbitControls, Environment, Float, Sparkles, Instances, Instance } from
 import { EffectComposer, Bloom, DepthOfField, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
-// Procedural Himalayan Terrain Generation (Mocking USD Terrain Ingestion)
+// Procedural Himalayan Terrain Generation (Mocking Terrain Ingestion)
 const Terrain = () => {
     const meshRef = useRef<THREE.Mesh>(null);
 
@@ -14,7 +14,7 @@ const Terrain = () => {
         const geom = new THREE.PlaneGeometry(30, 30, 128, 128);
         geom.rotateX(-Math.PI / 2);
 
-        // Displace vertices to create mountains (Simulating SDF / GPU Gems Fractal Noise)
+        // Displace vertices to create mountains (Simulating Fractal Noise)
         const positions = geom.attributes.position.array;
         for (let i = 0; i < positions.length; i += 3) {
             const x = positions[i];
@@ -58,7 +58,7 @@ const Terrain = () => {
     );
 };
 
-// Fluid Dynamics Weather Cloudburst (RenderMan / Unity Particles Simulation)
+// Fluid Dynamics Weather Cloudburst (High-Fidelity Particles Simulation)
 const CloudburstParticleSystem = () => {
     const group = useRef<THREE.Group>(null);
 
@@ -135,7 +135,7 @@ const HighFidelitySimulation: React.FC = () => {
                     autoRotateSpeed={0.5}
                 />
 
-                {/* Advanced GPU Gems Post-Processing Pipeline */}
+                {/* Advanced Post-Processing Pipeline */}
                 <EffectComposer disableNormalPass>
                     {/* Intense Bloom to make the neon lines / APIs glow like magic */}
                     <Bloom

@@ -10,7 +10,7 @@ interface Message {
 
 const GenAIPrompt: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: 'Meta Llama 3 (NVIDIA Modulus Fine-Tuned) initialized. Describe the atmospheric topology and target region for the PINN (Physics-Informed Neural Network).' }
+        { role: 'assistant', content: 'Mausam-IR Autonomous Swarm initialized (Powered by Meta Llama & NVIDIA Modulus). Describe the atmospheric topology and target region for the PINN (Physics-Informed Neural Network).' }
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -33,7 +33,7 @@ const GenAIPrompt: React.FC = () => {
         // Simulate AI thinking and generating PyTorch code
         setTimeout(() => {
             const responses: Message[] = [
-                { role: 'assistant', content: 'Analyzing parameters across Earth-2 API... Generating PyTorch Navier-Stokes physics constraints mapped to Himalayan terrain data.' },
+                { role: 'assistant', content: 'Analyzing parameters across ISRO, NASA, and Google Maps APIs... Generating NVIDIA Modulus PyTorch Navier-Stokes physics constraints mapped to Himalayan terrain data.' },
                 {
                     role: 'assistant',
                     isCode: true,
@@ -65,7 +65,7 @@ class HimalayanMeshPINN(nn.Module):
 
 # Initialize model for Compiler Trace
 pinn_model = HimalayanMeshPINN()
-print("[Modulus] PINN graph ready for LLVM Lowering.")`
+print("[NVIDIA Modulus] PINN graph ready for LLVM Lowering.")`
                 }
             ];
 
@@ -83,7 +83,7 @@ print("[Modulus] PINN graph ready for LLVM Lowering.")`
         <div className="component-container" style={{ height: '500px' }}>
             <div className="terminal-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', background: 'linear-gradient(90deg, rgba(60,255,140,0.1) 0%, rgba(0,0,0,0) 100%)' }}>
                 <Zap size={16} className="glow-green" />
-                <span className="terminal-title">META LLAMA V3 // NVIDIA MODULUS CODEGEN</span>
+                <span className="terminal-title">AUTONOMOUS AGENT SWARM // META LLAMA CODEGEN</span>
             </div>
 
             <div

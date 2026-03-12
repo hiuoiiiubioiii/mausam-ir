@@ -10,7 +10,7 @@ const DatasetIngestion: React.FC = () => {
     useEffect(() => {
         if (progress >= 100) {
             setIsComplete(true);
-            setLogs((prev) => [...prev, '[SYSTEM] ERA5 Dataset successfully mapped to memory.']);
+            setLogs((prev) => [...prev, '[SYSTEM] ISRO / NASA Climate Datasets successfully mapped to memory.']);
             return;
         }
 
@@ -19,9 +19,9 @@ const DatasetIngestion: React.FC = () => {
             setProgress((prev) => Math.min(prev + increment, 100));
 
             const newLogs = [
-                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Downloading IMD Gridded chunk 0x${Math.floor(Math.random() * 10000).toString(16)}...`,
-                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Connecting to ERA5 Copernicus node...`,
-                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Resolving topography data from Earth-2 gateway...`
+                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Downloading ISRO MOSDAC satellite chunk 0x${Math.floor(Math.random() * 10000).toString(16)}...`,
+                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Connecting to NASA EarthData Copernicus node...`,
+                `[${new Date().toISOString().split('T')[1].slice(0, 12)}] Resolving topography data from Google Maps API gateway...`
             ];
             setLogs((prev) => [...prev, newLogs[Math.floor(Math.random() * newLogs.length)]].slice(-6));
 
@@ -34,12 +34,12 @@ const DatasetIngestion: React.FC = () => {
         <div className="component-container">
             <div className="terminal-header" style={{ borderBottom: '1px solid rgba(0, 210, 255, 0.2)' }}>
                 <Database size={16} className="glow-blue" />
-                <span className="terminal-title" style={{ color: 'var(--neon-blue)' }}>NVIDIA EARTH-2 // OPEN-SOURCE DATA PIPELINE</span>
+                <span className="terminal-title" style={{ color: 'var(--neon-blue)' }}>MAUSAM-IR // CLIMATE DATA PIPELINE</span>
             </div>
 
             <div style={{ padding: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Ingesting High-Resolution ERA5 & IMD Gridded Datasets</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Ingesting High-Resolution ISRO & NASA Datasets</span>
                     <span className="glow-blue">{Math.floor(progress)}%</span>
                 </div>
 
