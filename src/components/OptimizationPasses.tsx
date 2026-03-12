@@ -6,12 +6,12 @@ const OptimizationPasses: React.FC = () => {
     const [logs, setLogs] = useState<string[]>([]);
 
     const passes = [
-        { name: '--mausam-dce', desc: 'Dead Code Elimination: Removing inactive tensor ops' },
-        { name: '--mausam-loop-unroll', desc: 'Loop Unrolling: Expanding spatial convolutions for cache locality' },
-        { name: '--mausam-fuse-ops', desc: 'Operator Fusion: Combining Conv2D + BatchNorm + ReLU' },
-        { name: '--mausam-quantize', desc: 'INT8 Quantization: Compressing FP32 Earth-2 weights for MCU' },
-        { name: '--mausam-lower-to-llvm', desc: 'Lowering MLIR to LLVM IR...' },
-        { name: 'llc -march=xtensa -O3', desc: 'Generating machine code for ESP32 Target...' }
+        { name: '--genai-prune-weights', desc: 'Weight Pruning: Removing inactive LLM attention heads' },
+        { name: '--genai-fuse-lora', desc: 'LoRA Fusion: Merging Low-Rank Adapters into Base Model' },
+        { name: '--genai-mixed-precision', desc: 'Mixed Precision Casting: FP16 to INT8 for Edge Constraints' },
+        { name: '--genai-quantize-4bit', desc: 'AWQ Quantization: Compressing LLM weights to 4-bit for MCU deployment' },
+        { name: '--genai-compile-engine', desc: 'Lowering Tensor Graph to Edge Logic...' },
+        { name: 'llama.cpp -march=xtensa -O3', desc: 'Generating compact GGUF inference code for ESP32 Target...' }
     ];
 
     useEffect(() => {
@@ -19,10 +19,10 @@ const OptimizationPasses: React.FC = () => {
 
         // Initial banner
         setLogs([
-            'Mausam Compiler Toolchain v2.4a (LLVM 17.0.1)',
-            'Target: xtensa-esp32-none-elf',
+            'Mausam GenAI Orchestrator v4.2 (Llama.cpp Edge)',
+            'Target: Edge IoT Native / GGUF Compact',
             '==============================================================',
-            'Running C++ Optimization Passes...'
+            'Running Model Compression & LoRA Passes...'
         ]);
 
         const interval = setInterval(() => {
@@ -36,9 +36,9 @@ const OptimizationPasses: React.FC = () => {
 
                 // Add fake metrics based on pass type
                 if (passes[currentIndex].name.includes('quantize')) {
-                    setLogs(prev => [...prev, '  -> Reduced tensor weights from 14.2MB to 3.5MB']);
-                } else if (passes[currentIndex].name.includes('dce')) {
-                    setLogs(prev => [...prev, '  -> Elided 104 dead nodes from PyTorch graph']);
+                    setLogs(prev => [...prev, '  -> Compressed LLM weights from 7.2GB to 3.5MB']);
+                } else if (passes[currentIndex].name.includes('prune')) {
+                    setLogs(prev => [...prev, '  -> Elided 104 dead neural pathways from attention graph']);
                 }
 
                 currentIndex++;
@@ -48,8 +48,8 @@ const OptimizationPasses: React.FC = () => {
                     setLogs(prev => [
                         ...prev,
                         '==============================================================',
-                        '[SUCCESS] Model successfully compiled to 18.2 KB binary.',
-                        '[SUCCESS] Ready for Bare-Metal Flash.'
+                        '[SUCCESS] Local Edge LLM compressed to 18.2 MB footprint.',
+                        '[SUCCESS] Inference Engine ready for Bare-Metal Flash.'
                     ]);
                 }, 800);
             }
@@ -62,7 +62,7 @@ const OptimizationPasses: React.FC = () => {
         <div className="component-container" style={{ height: '500px' }}>
             <div className="terminal-header" style={{ borderBottom: '1px solid rgba(60, 255, 140, 0.2)' }}>
                 <TerminalSquare size={16} className="glow-green" />
-                <span className="terminal-title" style={{ color: 'var(--neon-green)' }}>C++ LLVM PASSES // COMPILER TRACE</span>
+                <span className="terminal-title" style={{ color: 'var(--neon-green)' }}>MODEL COMPRESSION // LORA & QUANTIZATION TRACE</span>
             </div>
 
             <div className="terminal-box" style={{ flex: 1, padding: '1.5rem', background: '#050505' }}>

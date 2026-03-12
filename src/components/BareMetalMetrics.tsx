@@ -7,7 +7,7 @@ const BareMetalMetrics: React.FC = () => {
         <div className="component-container">
             <div className="terminal-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <Microchip size={16} style={{ color: '#ff5f56' }} />
-                <span className="terminal-title" style={{ color: '#ff5f56' }}>IoT HARDWARE DEPLOYMENT // MISSION MAUSAM</span>
+                <span className="terminal-title" style={{ color: '#ff5f56' }}>LLM EVALUATION METRICS // EDGE DEPLOYMENT</span>
             </div>
 
             <div style={{ padding: '2rem' }}>
@@ -16,7 +16,7 @@ const BareMetalMetrics: React.FC = () => {
                     {/* Target MCU Info */}
                     <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <h3 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Cpu size={16} color="var(--neon-blue)" /> Target Architecture
+                            <Cpu size={16} color="var(--neon-blue)" /> Edge GenAI Hardware Profile
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -41,24 +41,24 @@ const BareMetalMetrics: React.FC = () => {
                     {/* Compiled Binary Metrics */}
                     <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '8px', border: '1px solid rgba(60, 255, 140, 0.2)' }}>
                         <h3 style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Activity size={16} color="var(--neon-green)" /> Compiled Binary Trace
+                            <Activity size={16} color="var(--neon-green)" /> Inference & Eval Trace
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Flash Size (.bin):</span>
-                                <span style={{ color: '#fff' }}>18.2 KB <span style={{ color: 'var(--neon-green)', fontSize: '0.7rem' }}>[-99.9% vs PyTorch]</span></span>
+                                <span style={{ color: 'var(--text-muted)' }}>Compressed Model Size (GGUF):</span>
+                                <span style={{ color: '#fff' }}>18.2 MB <span style={{ color: 'var(--neon-green)', fontSize: '0.7rem' }}>[4-bit Quant]</span></span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>SRAM Footprint:</span>
-                                <span style={{ color: '#fff' }}>42 KB</span>
+                                <span style={{ color: 'var(--text-muted)' }}>Token Generation Latency:</span>
+                                <span style={{ color: '#fff' }}>14.2 Tokens/sec</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Inference Calc:</span>
-                                <span style={{ color: '#fff' }}>1.2 ms per frame</span>
+                                <span style={{ color: 'var(--text-muted)' }}>BLEU / ROUGE-L Precision:</span>
+                                <span style={{ color: 'var(--neon-blue)' }}>89.4% / 0.88</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Active Power Draw:</span>
-                                <span style={{ color: '#ffbd2e' }}>240 µW</span>
+                                <span style={{ color: 'var(--text-muted)' }}>Context Window Limit:</span>
+                                <span style={{ color: '#ffbd2e' }}>2048 Tokens</span>
                             </div>
                         </div>
                     </div>
@@ -83,7 +83,7 @@ const BareMetalMetrics: React.FC = () => {
                             boxShadow: '0 0 20px rgba(255, 95, 86, 0.2) inset'
                         }}
                     >
-                        FLASH FIRMWARE (OTA) // LORA WAKE: KEDARNATH-NODE-01
+                        TRIGGER EDGE LLM OTA Sideload // KEDARNATH-NODE-01
                     </motion.button>
                 </div>
             </div>

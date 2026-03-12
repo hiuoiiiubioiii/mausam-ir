@@ -11,12 +11,12 @@ import OptimizationPasses from './components/OptimizationPasses';
 import BareMetalMetrics from './components/BareMetalMetrics';
 
 const STAGES = [
-    { id: 'ingestion', label: 'ISRO/NASA Dataset Ingestion', icon: Database },
+    { id: 'ingestion', label: 'RAG Pipeline & Vector DB', icon: Database },
     { id: 'simulation', label: 'OpenUSD 3D Simulation', icon: Activity },
     { id: 'genai', label: 'Autonomous Agent Swarm', icon: Zap },
-    { id: 'frontend', label: 'LLVM Graph Frontend', icon: Network },
-    { id: 'passes', label: 'C++ Custom Passes', icon: TerminalSquare },
-    { id: 'baremetal', label: 'IoT Bare Metal Target', icon: Cpu },
+    { id: 'frontend', label: 'Chain-of-Thought & AST Parsing', icon: Network },
+    { id: 'passes', label: 'Model Quantization & LoRA', icon: TerminalSquare },
+    { id: 'baremetal', label: 'LLM Evaluation & Edge Metrics', icon: Cpu },
 ];
 
 function App() {
@@ -32,10 +32,10 @@ function App() {
             {/* UI Overlay Layer */}
             <header>
                 <div className="brand">
-                    <h1>MAUSAM<span className="glow-green">-IR</span></h1>
+                    <h1>MAUSAM<span className="glow-green">-GEN AI</span></h1>
                     <div className="subtitle">
-                        Mission Mausam <br />
-                        Physics-Informed Climate Compiler
+                        Gen-AI Coursework Project <br />
+                        Physics-Informed Edge LLM Pipeline
                     </div>
                 </div>
                 <div className="status-indicator">
