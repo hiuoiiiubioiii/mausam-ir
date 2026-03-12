@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-le
 import { divIcon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Radio, Youtube, Info, Layers, ExternalLink, Shield, Brain, Zap } from 'lucide-react';
+import { Radio, Youtube, Info, Layers, ExternalLink, Shield, Brain, Zap, Maximize2, CloudRain } from 'lucide-react';
 
 import L from 'leaflet';
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -315,6 +315,8 @@ const HimalayanFloodMap: React.FC = () => {
     const [showRings, setShowRings] = useState(true);
     const [filterRisk, setFilterRisk] = useState<string | null>(null);
     const [sidebarTab, setSidebarTab] = useState<SidebarTab>('info');
+    const [isPerspective, setIsPerspective] = useState(false);
+    const [showRain, setShowRain] = useState(false);
 
     const filtered = filterRisk ? FLOOD_ZONES.filter(z => z.risk === filterRisk) : FLOOD_ZONES;
     const stats = { extreme: 0, critical: 0, high: 0, moderate: 0 };
@@ -349,6 +351,15 @@ const HimalayanFloodMap: React.FC = () => {
                     ))}
                 </div>
                 <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+                    <button onClick={() => setShowRain(!showRain)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '.3rem', padding: '.28rem .65rem', borderRadius: '6px', border: `1px solid ${showRain ? '#3b82f6' : 'rgba(255,255,255,.12)'}`, background: showRain ? 'rgba(59,130,246,.1)' : 'transparent', color: showRain ? '#3b82f6' : 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '.62rem', cursor: 'pointer' }}>
+                        <CloudRain size={10} /> Weather Overlay
+                    </button>
+                    <button onClick={() => setIsPerspective(!isPerspective)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '.3rem', padding: '.28rem .65rem', borderRadius: '6px', border: `1px solid ${isPerspective ? '#a855f7' : 'rgba(255,255,255,.12)'}`, background: isPerspective ? 'rgba(168,85,247,.1)' : 'transparent', color: isPerspective ? '#a855f7' : 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '.62rem', cursor: 'pointer' }}>
+                        <Maximize2 size={10} /> 3D Perspective
+                    </button>
+                    <div style={{ width: '1px', height: '14px', background: 'rgba(255,255,255,.1)', margin: '0 .2rem' }} />
                     <Layers size={12} color="var(--muted)" />
                     {TILE_LAYERS.map((l, i) => (
                         <button key={l.id} onClick={() => setTileLayer(i)}
@@ -363,43 +374,61 @@ const HimalayanFloodMap: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1rem', height: '600px' }}>
 
                 {/* ── Map ── */}
-                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.1)', position: 'relative' }}>
-                    <MapContainer center={[30, 82]} zoom={6} style={{ height: '100%', width: '100%', background: '#060810' }} zoomControl attributionControl={false}>
-                        <MapController />
-                        <TileLayer url={TILE_LAYERS[tileLayer].url} attribution={TILE_LAYERS[tileLayer].attribution} />
-                        {filtered.map(zone => {
-                            const cfg = rcfg(zone.risk);
-                            const isActive = selectedZone?.id === zone.id;
-                            return (
-                                <React.Fragment key={zone.id}>
-                                    {showRings && <Circle center={[zone.lat, zone.lon]} radius={cfg.radius} pathOptions={{ color: cfg.color, fillColor: cfg.color, fillOpacity: isActive ? 0.14 : 0.05, weight: isActive ? 2 : 1, opacity: isActive ? 0.9 : 0.4 }} />}
-                                    <Marker position={[zone.lat, zone.lon]} icon={createMarkerIcon(zone.risk, isActive)}
-                                        eventHandlers={{ click: () => handleZoneClick(zone) }}>
-                                        <Popup className="mausam-popup">
-                                            <div style={{ fontFamily: 'var(--mono)', minWidth: '200px', background: '#08090e', color: '#e2e8f0', padding: '.75rem 1rem', borderRadius: '8px' }}>
-                                                <div style={{ color: cfg.color, fontSize: '.65rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '3px' }}>● {zone.risk}</div>
-                                                <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fff' }}>{zone.name}</div>
-                                                <div style={{ fontSize: '.62rem', color: '#888', margin: '3px 0 6px' }}>{zone.river} · {zone.state}</div>
-                                                <div style={{ height: '3px', background: 'rgba(255,255,255,.06)', borderRadius: '2px', marginBottom: '6px' }}>
-                                                    <div style={{ height: '100%', width: `${zone.pFlood * 100}%`, background: cfg.color, borderRadius: '2px' }} />
+                <div style={{
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    position: 'relative',
+                    perspective: '1000px'
+                }}>
+                    <div style={{
+                        height: '100%',
+                        width: '100%',
+                        transform: isPerspective ? 'rotateX(12deg) translateY(-15px) scale(0.98)' : 'none',
+                        transformOrigin: 'bottom center',
+                        transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)'
+                    }}>
+                        <MapContainer center={[30, 82]} zoom={6} style={{ height: '100%', width: '100%', background: '#060810' }} zoomControl attributionControl={false}>
+                            <MapController />
+                            <TileLayer url={TILE_LAYERS[tileLayer].url} attribution={TILE_LAYERS[tileLayer].attribution} />
+                            {showRain && <TileLayer
+                                url="https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=d22f796472f6f17bc10cdcf0f09a1a45"
+                                opacity={0.6}
+                            />}
+                            {filtered.map(zone => {
+                                const cfg = rcfg(zone.risk);
+                                const isActive = selectedZone?.id === zone.id;
+                                return (
+                                    <React.Fragment key={zone.id}>
+                                        <Circle center={[zone.lat, zone.lon]} radius={cfg.radius} pathOptions={{ color: cfg.color, fillColor: cfg.color, fillOpacity: isActive ? 0.14 : 0.05, weight: isActive ? 2 : 1, opacity: isActive ? 0.9 : 0.4 }} />
+                                        <Marker position={[zone.lat, zone.lon]} icon={createMarkerIcon(zone.risk, isActive)}
+                                            eventHandlers={{ click: () => handleZoneClick(zone) }}>
+                                            <Popup className="mausam-popup">
+                                                <div style={{ fontFamily: 'var(--mono)', minWidth: '200px', background: '#08090e', color: '#e2e8f0', padding: '.75rem 1rem', borderRadius: '8px' }}>
+                                                    <div style={{ color: cfg.color, fontSize: '.65rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '3px' }}>● {zone.risk}</div>
+                                                    <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fff' }}>{zone.name}</div>
+                                                    <div style={{ fontSize: '.62rem', color: '#888', margin: '3px 0 6px' }}>{zone.river} · {zone.state}</div>
+                                                    <div style={{ height: '3px', background: 'rgba(255,255,255,.06)', borderRadius: '2px', marginBottom: '6px' }}>
+                                                        <div style={{ height: '100%', width: `${zone.pFlood * 100}%`, background: cfg.color, borderRadius: '2px' }} />
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.6rem', color: '#666' }}>
+                                                        <span>P(flood): <span style={{ color: cfg.color }}>{(zone.pFlood * 100).toFixed(0)}%</span></span>
+                                                        <span>{zone.causes[0].label.split('(')[0].trim()}</span>
+                                                    </div>
                                                 </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.6rem', color: '#666' }}>
-                                                    <span>P(flood): <span style={{ color: cfg.color }}>{(zone.pFlood * 100).toFixed(0)}%</span></span>
-                                                    <span>{zone.causes[0].label.split('(')[0].trim()}</span>
-                                                </div>
-                                            </div>
-                                        </Popup>
-                                    </Marker>
-                                </React.Fragment>
-                            );
-                        })}
-                    </MapContainer>
+                                            </Popup>
+                                        </Marker>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </MapContainer>
+                    </div>
 
                     {/* Map legend */}
                     <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', background: 'rgba(3,5,8,.9)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.08)', borderRadius: '8px', padding: '.55rem .85rem', zIndex: 1000 }}>
                         {Object.entries(RISK_CONFIG).map(([risk, cfg]) => (
                             <div key={risk} style={{ display: 'flex', alignItems: 'center', gap: '.45rem', marginBottom: '2px' }}>
-                                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: cfg.color }} />
+                                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: (cfg as any).color }} />
                                 <span style={{ fontFamily: 'var(--mono)', fontSize: '.58rem', color: '#aaa' }}>{risk}</span>
                             </div>
                         ))}

@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Radio, RefreshCw, Globe, AlertTriangle, Zap, Wind, Droplets } from 'lucide-react';
 import { RiskRadarChart, RiskGauge, Sparkline, RiskHeatbar } from './RiskVisualization';
+import { Activity, Maximize2, Compass, Flame, Map as MapIcon } from 'lucide-react';
 
 // ─── World-level flood/disaster risk zones ────────────────────────────────────
 // Each zone has 5 radar dimensions + live weather fetched from Open-Meteo (free, no key)
@@ -40,6 +41,22 @@ const WORLD_ZONES = [
 const RADAR_LABELS = ['Rain', 'Soil', 'River', 'GLOF', 'Social'];
 
 
+
+interface Earthquake {
+    id: string;
+    mag: number;
+    place: string;
+    time: number;
+    lat: number;
+    lon: number;
+}
+
+interface Hotspot {
+    lat: number;
+    lon: number;
+    intensity: number;
+    id: string;
+}
 
 interface LiveData {
     precip: number;        // mm/day
@@ -90,6 +107,13 @@ const GlobalDisasterFeed: React.FC = () => {
     const [selected, setSelected] = useState<typeof WORLD_ZONES[number] | null>(null);
     const [lastUpdated, setLastUpdated] = useState('');
     const [vizMode, setVizMode] = useState<'radar' | 'gauge' | 'sparkline' | 'heatbar'>('radar');
+    const [tileLayer, setTileLayer] = useState<'dark' | 'satellite' | 'topo'>('dark');
+    const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
+    const [showQuakes, setShowQuakes] = useState(true);
+    const [showHotspots, setShowHotspots] = useState(false);
+    const [showHeatmap, setShowHeatmap] = useState(false);
+    const [hotspots, setHotspots] = useState<Hotspot[]>([]);
+    const [isPerspective, setIsPerspective] = useState(false);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchAll = useCallback(async () => {
@@ -125,11 +149,59 @@ const GlobalDisasterFeed: React.FC = () => {
         setLoading(false);
     }, []);
 
+    const fetchEarthquakes = async () => {
+        try {
+            // USGS Hourly 2.5+ Magnitude feed
+            const r = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_hour.geojson');
+            const d = await r.json();
+            const quakes: Earthquake[] = d.features.map((f: any) => ({
+                id: f.id,
+                mag: f.properties.mag,
+                place: f.properties.place,
+                time: f.properties.time,
+                lat: f.geometry.coordinates[1],
+                lon: f.geometry.coordinates[0]
+            })).slice(0, 15);
+            setEarthquakes(quakes);
+        } catch (e) { console.error("USGS Fetch Failed", e); }
+    };
+
+    const fetchHotspots = async () => {
+        // Simulating NASA FIRMS Thermal Hotspots for global risk
+        const regions = [
+            { name: 'Amazon', lat: [-10, 0], lon: [-70, -50] },
+            { name: 'Australia', lat: [-30, -20], lon: [120, 140] },
+            { name: 'Africa', lat: [0, 10], lon: [15, 30] },
+            { name: 'SE Asia', lat: [10, 20], lon: [100, 110] },
+            { name: 'Himalayas', lat: [28, 32], lon: [75, 90] }
+        ];
+        const newHotspots: Hotspot[] = [];
+        regions.forEach(r => {
+            for (let i = 0; i < 4; i++) {
+                newHotspots.push({
+                    id: Math.random().toString(36).substr(2, 9),
+                    lat: r.lat[0] + Math.random() * (r.lat[1] - r.lat[0]),
+                    lon: r.lon[0] + Math.random() * (r.lon[1] - r.lon[0]),
+                    intensity: 300 + Math.random() * 200
+                });
+            }
+        });
+        setHotspots(newHotspots);
+    };
+
     useEffect(() => {
         fetchAll();
-        intervalRef.current = setInterval(fetchAll, 120000); // refresh every 2 min
+        fetchEarthquakes();
+        fetchHotspots();
+        intervalRef.current = setInterval(() => { fetchAll(); fetchEarthquakes(); fetchHotspots(); }, 120000);
         return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
     }, [fetchAll]);
+
+    const TILE_URLS = {
+        dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        topo: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+    };
 
     // Compute live risk from weather data
     const liveRisk = (zone: typeof WORLD_ZONES[number]) => {
@@ -227,39 +299,120 @@ const GlobalDisasterFeed: React.FC = () => {
                 ))}
             </div>
 
+            {/* Geography Control Center */}
+            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center', background: 'rgba(255,255,255,.03)', padding: '.6rem 1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,.06)' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: '.62rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '.4rem' }}>
+                    <Compass size={12} /> MAP GEOGRAPHY:
+                </span>
+                <div style={{ display: 'flex', gap: '.4rem' }}>
+                    {(['dark', 'satellite', 'topo'] as const).map(t => (
+                        <button key={t} onClick={() => setTileLayer(t)}
+                            style={{ padding: '.3rem .6rem', borderRadius: '4px', border: `1px solid ${tileLayer === t ? '#60a5fa' : 'rgba(255,255,255,.1)'}`, background: tileLayer === t ? 'rgba(96,165,250,.15)' : 'transparent', color: tileLayer === t ? '#60a5fa' : '#888', fontFamily: 'var(--mono)', fontSize: '.58rem', cursor: 'pointer', textTransform: 'uppercase' }}>
+                            {t}
+                        </button>
+                    ))}
+                </div>
+                <div style={{ width: '1px', height: '14px', background: 'rgba(255,255,255,.1)', margin: '0 .5rem' }} />
+                <button onClick={() => setShowQuakes(!showQuakes)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '.4rem', padding: '.3rem .6rem', borderRadius: '4px', border: `1px solid ${showQuakes ? '#ef4444' : 'rgba(255,255,255,.1)'}`, background: showQuakes ? 'rgba(239,68,68,.1)' : 'transparent', color: showQuakes ? '#ef4444' : '#888', fontFamily: 'var(--mono)', fontSize: '.58rem', cursor: 'pointer' }}>
+                    <Activity size={10} /> USGS Quakes {showQuakes ? 'ON' : 'OFF'}
+                </button>
+                <button onClick={() => setShowHotspots(!showHotspots)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '.4rem', padding: '.3rem .6rem', borderRadius: '4px', border: `1px solid ${showHotspots ? '#f97316' : 'rgba(255,255,255,.1)'}`, background: showHotspots ? 'rgba(249,115,22,.1)' : 'transparent', color: showHotspots ? '#f97316' : '#888', fontFamily: 'var(--mono)', fontSize: '.58rem', cursor: 'pointer' }}>
+                    <Flame size={10} /> NASA Fire {showHotspots ? 'ON' : 'OFF'}
+                </button>
+                <button onClick={() => setShowHeatmap(!showHeatmap)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '.4rem', padding: '.3rem .6rem', borderRadius: '4px', border: `1px solid ${showHeatmap ? '#a855f7' : 'rgba(255,255,255,.1)'}`, background: showHeatmap ? 'rgba(168,85,247,.1)' : 'transparent', color: showHeatmap ? '#a855f7' : '#888', fontFamily: 'var(--mono)', fontSize: '.58rem', cursor: 'pointer' }}>
+                    <MapIcon size={10} /> Heatmap {showHeatmap ? 'ON' : 'OFF'}
+                </button>
+                <button onClick={() => setIsPerspective(!isPerspective)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '.4rem', padding: '.3rem .6rem', borderRadius: '4px', border: `1px solid ${isPerspective ? '#a855f7' : 'rgba(255,255,255,.1)'}`, background: isPerspective ? 'rgba(168,85,247,.1)' : 'transparent', color: isPerspective ? '#a855f7' : '#888', fontFamily: 'var(--mono)', fontSize: '.58rem', cursor: 'pointer' }}>
+                    <Maximize2 size={10} /> 3D Tilt
+                </button>
+            </div>
+
             {/* Main layout: Map + Zone detail */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1rem', minHeight: '520px' }}>
 
                 {/* ── World Map ── */}
-                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,.09)' }}>
-                    <MapContainer center={[20, 60]} zoom={2} style={{ height: '100%', width: '100%', background: '#050712' }} zoomControl attributionControl={false}>
-                        <WorldMapController />
-                        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                        {WORLD_ZONES.map(zone => {
-                            const risk = liveRisk(zone);
-                            const col = riskColor(risk);
-                            const isActive = selected?.id === zone.id;
-                            return (
-                                <CircleMarker key={zone.id}
-                                    center={[zone.lat, zone.lon]}
-                                    radius={isActive ? 16 : 10 + risk * 10}
-                                    pathOptions={{ color: col, fillColor: col, fillOpacity: isActive ? 0.75 : 0.4, weight: isActive ? 2.5 : 1.5, opacity: 0.9 }}
-                                    eventHandlers={{ click: () => setSelected(prev => prev?.id === zone.id ? null : zone) }}>
+                <div style={{
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255,255,255,.09)',
+                    perspective: '1000px',
+                    transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)'
+                }}>
+                    <div style={{
+                        height: '100%',
+                        width: '100%',
+                        transform: isPerspective ? 'rotateX(15deg) translateY(-10px)' : 'none',
+                        transformOrigin: 'bottom center',
+                        transition: 'transform 0.6s ease'
+                    }}>
+                        <MapContainer center={[20, 60]} zoom={2} style={{ height: '100%', width: '100%', background: '#050712' }} zoomControl attributionControl={false}>
+                            <WorldMapController />
+                            <TileLayer url={TILE_URLS[tileLayer]} />
+
+                            {/* Heatmap Layer Simulation */}
+                            {showHeatmap && WORLD_ZONES.map((zone, i) => (
+                                <Circle key={`heat-${i}`} center={[zone.lat * 1.02, zone.lon * 0.98]} radius={350000} pathOptions={{ fillColor: '#a855f7', fillOpacity: 0.08, color: 'transparent' }} />
+                            ))}
+
+                            {/* Live Earthquake Layer */}
+                            {showQuakes && earthquakes.map(q => (
+                                <CircleMarker key={q.id} center={[q.lat, q.lon]} radius={Math.pow(2, q.mag - 2) * 4}
+                                    pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.3, weight: 1, dashArray: '3,3' }}>
                                     <Popup className="mausam-popup">
-                                        <div style={{ fontFamily: 'var(--mono)', background: '#08090e', color: '#e2e8f0', padding: '.7rem .9rem', borderRadius: '8px', minWidth: '180px' }}>
-                                            <div style={{ color: col, fontSize: '.6rem', fontWeight: 700, marginBottom: '2px' }}>● {riskLabel(risk)}</div>
-                                            <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fff' }}>{zone.name}</div>
-                                            <div style={{ fontSize: '.62rem', color: '#888', marginBottom: '6px' }}>{zone.country}</div>
-                                            <div style={{ fontSize: '.65rem', color: col }}>{(risk * 100).toFixed(0)}% flood probability</div>
-                                            {liveData[zone.id] && <div style={{ fontSize: '.62rem', color: '#666', marginTop: '3px' }}>
-                                                Precip: {liveData[zone.id].precip.toFixed(1)}mm · Temp: {liveData[zone.id].temp.toFixed(0)}°C
-                                            </div>}
+                                        <div style={{ fontFamily: 'var(--mono)', background: '#1a0505', color: '#fecaca', padding: '.7rem', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '.6rem', fontWeight: 700, color: '#ef4444' }}>🔴 SEISMIC EVENT</div>
+                                            <div style={{ fontSize: '.8rem', fontWeight: 700 }}>M{q.mag.toFixed(1)} Earthquake</div>
+                                            <div style={{ fontSize: '.6rem', color: '#fca5a5' }}>{q.place}</div>
+                                            <div style={{ fontSize: '.55rem', color: '#7f1d1d', marginTop: '4px' }}>{new Date(q.time).toLocaleTimeString()}</div>
                                         </div>
                                     </Popup>
                                 </CircleMarker>
-                            );
-                        })}
-                    </MapContainer>
+                            ))}
+
+                            {/* Thermal Hotspots (NASA FIRMS Simulated) */}
+                            {showHotspots && hotspots.map(h => (
+                                <CircleMarker key={h.id} center={[h.lat, h.lon]} radius={3} pathOptions={{ color: '#f97316', fillColor: '#f97316', fillOpacity: 0.6, weight: 0 }}>
+                                    <Popup className="mausam-popup">
+                                        <div style={{ fontFamily: 'var(--mono)', background: '#1a0f05', color: '#fed7aa', padding: '.7rem', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '.6rem', fontWeight: 700, color: '#f97316' }}>🔥 THERMAL ANOMALY</div>
+                                            <div style={{ fontSize: '.8rem', fontWeight: 700 }}>Satellite Detection</div>
+                                            <div style={{ fontSize: '.6rem', color: '#fdba74' }}>Intensity: {h.intensity.toFixed(0)} K</div>
+                                            <div style={{ fontSize: '.55rem', color: '#7c2d12', marginTop: '4px' }}>NASA FIRMS · 1km Res</div>
+                                        </div>
+                                    </Popup>
+                                </CircleMarker>
+                            ))}
+
+                            {WORLD_ZONES.map(zone => {
+                                const risk = liveRisk(zone);
+                                const col = riskColor(risk);
+                                const isActive = selected?.id === zone.id;
+                                return (
+                                    <CircleMarker key={zone.id}
+                                        center={[zone.lat, zone.lon]}
+                                        radius={isActive ? 16 : 10 + risk * 10}
+                                        pathOptions={{ color: col, fillColor: col, fillOpacity: isActive ? 0.75 : 0.4, weight: isActive ? 2.5 : 1.5, opacity: 0.9 }}
+                                        eventHandlers={{ click: () => setSelected(prev => prev?.id === zone.id ? null : zone) }}>
+                                        <Popup className="mausam-popup">
+                                            <div style={{ fontFamily: 'var(--mono)', background: '#08090e', color: '#e2e8f0', padding: '.7rem .9rem', borderRadius: '8px', minWidth: '180px' }}>
+                                                <div style={{ color: col, fontSize: '.6rem', fontWeight: 700, marginBottom: '2px' }}>● {riskLabel(risk)}</div>
+                                                <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fff' }}>{zone.name}</div>
+                                                <div style={{ fontSize: '.62rem', color: '#888', marginBottom: '6px' }}>{zone.country}</div>
+                                                <div style={{ fontSize: '.65rem', color: col }}>{(risk * 100).toFixed(0)}% flood probability</div>
+                                                {liveData[zone.id] && <div style={{ fontSize: '.62rem', color: '#666', marginTop: '3px' }}>
+                                                    Precip: {liveData[zone.id].precip.toFixed(1)}mm · Temp: {liveData[zone.id].temp.toFixed(0)}°C
+                                                </div>}
+                                            </div>
+                                        </Popup>
+                                    </CircleMarker>
+                                );
+                            })}
+                        </MapContainer>
+                    </div>
                 </div>
 
                 {/* ── Zone detail panel ── */}
